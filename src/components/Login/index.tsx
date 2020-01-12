@@ -131,6 +131,7 @@ class Login extends React.Component<IProps, IState> {
                     {isRegisteredUser && !isCheckEmail && <Input
                         onChange={this.handleChangePassword}
                         value={password}
+                        type="password"
                         prefix={<Icon type="password" style={{color: 'rgba(0,0,0,.25)'}}/>}
                         placeholder="Password"
                     />}

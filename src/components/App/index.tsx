@@ -8,6 +8,8 @@ import bg from '@src/assets/icons/bg.jpeg'
 import {HistoryStore} from "@stores/index";
 import {inject, observer} from "mobx-react";
 import Myself from "@components/Myself";
+import NoMatch from "@components/NoMatch";
+import Register from "@components/Register";
 
 interface IProps {
     historyStore?: HistoryStore
@@ -34,6 +36,9 @@ class App extends React.Component<IProps> {
                 <Route exact path="/" component={Home}/>
                 <Route exact path="/login" component={Login}/>
                 <Route exact path="/myself" component={Myself}/>
+                <Route exact path="/register/:string" component={Register}/>
+
+                <Route component={NoMatch} />
                 {/*<Route path="/:string" component={Page}/>*/}
             </Router>
         </Root>

@@ -18,3 +18,11 @@ export const checkUser = async (username: string) =>
 export const registerReq = async (username: string) =>
     await axios.post(`${API_URL}/registerReq`, {username}, {method: "POST"});
 
+
+export const checkHash = async (hash: string) =>
+    await axios.post(`${API_URL}/checkHash`, {hash}, {method: "POST"});
+
+
+export const register = async (hash: string, password: string) =>
+    await axios.post(`${API_URL}/register`, {hash, password}, {method: "POST"});
+
