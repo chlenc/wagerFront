@@ -9,6 +9,7 @@ import { Body } from '@components/Login'
 import { RouteChildrenProps } from 'react-router'
 import { checkHash, register } from "@src/api";
 import { openNotification } from "@utils/notifiations";
+import { generateNewSeed } from "@waves/waves-transactions/dist/seedUtils";
 
 const Root = styled.div`
 display: flex;
@@ -51,9 +52,11 @@ export default class Register extends React.Component<IProps, IState> {
 
     handleClick = async () => {
         const {pass1, pass2} = this.state;
-        if (pass1.length < 6 || pass1 !== pass2) return
+        if (pass1.length < 6 || pass1 !== pass2) return;
         try {
-            const res = await register((this.props.match!.params as any).string, pass1);
+            const seed = generateNewSeed();
+
+            const res = await register((this.props.match!.params as any).string, pass1, seed);
             if (res.status === 200) {
                 if (res.data && res.data.access_token) {
                     this.props.accountStore!.setAccessToken(res.data.access_token);

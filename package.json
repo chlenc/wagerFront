@@ -17,6 +17,7 @@
     "@typescript-eslint/parser": "^2.2.0",
     "@waves/ts-lib-crypto": "^1.4.1",
     "@waves/waves-transactions": "^3.24.0",
+    "aes-js": "^3.1.2",
     "antd": "^3.26.6",
     "axios": "^0.19.0",
     "babel-eslint": "10.0.3",

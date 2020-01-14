@@ -1,16 +1,13 @@
 /** @jsx jsx */
-import React, {FocusEventHandler} from "react";
-import {Form, Icon, Input, Button, Checkbox} from 'antd';
-import {css, jsx} from "@emotion/core";
+import React from "react";
+import { Button, Icon, Input } from 'antd';
+import { css, jsx } from "@emotion/core";
 import styled from "@emotion/styled";
-import axios from 'axios';
-import {inject, observer} from "mobx-react";
-import {FormComponentProps} from 'antd/lib/form';
+import { inject, observer } from "mobx-react";
 import AccountStore from "@stores/AccountStore";
-import {HistoryStore} from "@stores/index";
-import {openNotification} from "@utils/notifiations";
-import {API_URL} from "@src/constants";
-import {checkUser, login, registerReq} from "@src/api";
+import { HistoryStore } from "@stores/index";
+import { openNotification } from "@utils/notifiations";
+import { checkUser, login, registerReq } from "@src/api";
 
 const Root = styled.div`
 display: flex;
@@ -73,11 +70,15 @@ class Login extends React.Component<IProps, IState> {
 
     searchUser = async () => {
         const {email} = this.state;
-        if (email === '') return;
-        const res = await checkUser(email);
         let isRegisteredUser = false;
-        if (res.status === 200 && res.data === 'success') {
-            isRegisteredUser = true
+        if (isValidEmail(email)) {
+            try {
+                const res = await checkUser(email);
+                if (res.status === 200 && res.data === 'success') {
+                    isRegisteredUser = true
+                }
+            }catch (e) {
+            }
         }
         this.setState({isRegisteredUser})
     };
@@ -103,7 +104,7 @@ class Login extends React.Component<IProps, IState> {
             }
         }
         if (!isRegisteredUser && username !== '') {
-            const res = await registerReq(username)
+            const res = await registerReq(username);
             if (res.status === 200) {
                 this.setState({isCheckEmail: true})
             } else {
@@ -113,29 +114,34 @@ class Login extends React.Component<IProps, IState> {
 
     };
 
+    handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        this.searchUser()
+    }
+
     render() {
         const {email, isRegisteredUser, password, isCheckEmail} = this.state;
+        const validEmail = isValidEmail(email);
         return (
             <Root>
                 <Body>
                     <Title>{isCheckEmail ? 'Check your email' : 'Log in the hotWagger'}<br/><br/></Title>
 
                     {!isCheckEmail && <Input
-                        onBlur={this.searchUser}
-                        onKeyPress={({key}) => key === 'Enter' && this.searchUser()}
+                        onKeyUp={this.handleKeyPress}
                         onChange={this.handleChangeEmail}
                         value={email}
+                        type="email"
                         prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>}
                         placeholder="Email"
                     />}
-                    {isRegisteredUser && !isCheckEmail && <Input
+                    {isRegisteredUser && validEmail && !isCheckEmail && <Input
                         onChange={this.handleChangePassword}
                         value={password}
                         type="password"
                         prefix={<Icon type="password" style={{color: 'rgba(0,0,0,.25)'}}/>}
                         placeholder="Password"
                     />}
-                    {!isCheckEmail && email !== '' &&
+                    {!isCheckEmail && validEmail &&
                     <Button onClick={this.handleSubmit} css={css`width: 100%`} type="primary">
                         Enjoy
                     </Button>}
@@ -146,5 +152,9 @@ class Login extends React.Component<IProps, IState> {
     }
 }
 
+function isValidEmail(email: string) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
 
 export default Login

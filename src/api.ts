@@ -23,6 +23,9 @@ export const checkHash = async (hash: string) =>
     await axios.post(`${API_URL}/checkHash`, {hash}, {method: "POST"});
 
 
-export const register = async (hash: string, password: string) =>
-    await axios.post(`${API_URL}/register`, {hash, password}, {method: "POST"});
+export const register = async (hash: string, password: string, seed: string) =>
+    await axios.post(`${API_URL}/register`, {hash, password, seed}, {method: "POST"});
+
+
+export const getEvents = async () => await axios.get(`${API_URL}/events`);
 

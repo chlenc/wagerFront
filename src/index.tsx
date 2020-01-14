@@ -6,6 +6,8 @@ import App from '@components/App';
 import './index.css'
 import 'rc-notification/assets/index.css'
 import 'antd/dist/antd.css';
+import 'react-perfect-scrollbar/dist/css/styles.css';
+
 import {autorun} from "mobx";
 import {loadState, saveState} from "@utils/localstorage";
 
