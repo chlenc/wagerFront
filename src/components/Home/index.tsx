@@ -1,141 +1,138 @@
 /** @jsx jsx */
-import React, { FunctionComponent } from "react";
-import { css, jsx, keyframes } from "@emotion/core";
-import styled from "@emotion/styled";
-import { Button, Icon, Layout, Menu } from 'antd';
+import React from "react";
+import { css, jsx } from "@emotion/core";
+import { Col, Icon, Layout, Menu, Radio, Row } from 'antd';
 import { inject, observer } from "mobx-react";
 import { HistoryStore } from "@stores/index";
-import AccountStore from "@stores/AccountStore";
 import EventsStore from "@stores/EventsStore";
 import { RouteChildrenProps } from "react-router";
 import Scrollbar from 'react-perfect-scrollbar'
+import { RadioChangeEvent } from "antd/lib/radio";
+import EventInfo from "@components/Home/EventInfo";
+import styled from "@emotion/styled";
+import DappStore from "@stores/DappStore";
 
 const {SubMenu} = Menu;
-const {Header, Content, Footer, Sider} = Layout;
-const Root = styled.div`
-font-size: 72px;
-font-weight: 700;
-display: flex;
-align-items: center;
-justify-content: center;
-height: 100%;
-position: relative;
-@media(max-width: 768px){
-  font-size: 64px;
-}
-@media(max-width: 375px){
-  font-size: 48px;
-}
-`;
+const {Content, Sider} = Layout;
 
-const bounce = keyframes`
-  0%{ transform: scale(1)}
-  50%{transform: scale(1.2)}
-  100%{transform: scale(1)}
-`;
+const betThreshold = 10;
+const betMax = 100;
 
-const buttonStyle = css`
-//position: absolute;
-//top: 5%;
-//right: 5%;
-animation: ${bounce} 5s ease infinite;
-@media(max-width: 375px){
-  right: unset;
-  margin: auto;
-}
-`;
-
-const Body = styled.div`
-display: flex;
-padding-top: 120px;
-height: 100%;
-margin: -10px;
-width: 90%;
-& > * {
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
-  margin: 10px;
-}
-`
 
 interface IProps extends RouteChildrenProps {
     historyStore?: HistoryStore
-    accountStore?: AccountStore
     eventsStore?: EventsStore
+    dappStore?: DappStore
 }
 
-const Logo = styled.div`
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px;
+interface IState {
+    selectedValue: number
+    selectedEvent?: 1 | 2
+}
+
+const Placeholder = styled.div`
+width: 100%;
+text-align: center;
 `
 
-const LoginBtn: FunctionComponent<{ handleClick: () => void, isLogin: boolean }> = ({handleClick, isLogin}) =>
-    <Button onClick={handleClick} css={buttonStyle} type="danger" icon="user" size="large">
-        {isLogin ? 'Look at myself' : 'Login or register'}
-    </Button>
-
-
-@inject('accountStore', 'historyStore', 'eventsStore')
+@inject('historyStore', 'eventsStore', 'dappStore')
 @observer
-export default class Home extends React.Component<IProps> {
+export default class Home extends React.Component<IProps, IState> {
 
-    handleClick = () =>
-        this.props.historyStore!.history.push(this.props.accountStore!.isLogin ? '/myself' : 'login');
+    state: IState = {
+        selectedValue: 10,
+    };
 
+    handleChangeSelectedValue = (selectedValue: number | number[]) => {
+        if (typeof selectedValue === 'number') this.setState({selectedValue})
+    };
+    handleSelectEvent = (e: RadioChangeEvent) => this.setState({selectedEvent: e.target.value});
+
+    get currentCoefficient() {
+        const {selectedEvent, selectedValue} = this.state;
+        const {currentEvent} = this.props.eventsStore!;
+        if (!selectedEvent || !currentEvent || !currentEvent.state) return 0;
+        let q = +(currentEvent.state as any)[`k${selectedEvent}`] / 100;
+
+        if (selectedValue > betThreshold) {
+            const k = (1 - q) / (betMax - betThreshold);
+            const b = 1 - k * betMax;
+            q = selectedValue * k + b;
+        }
+
+        return q
+    }
 
     handleOpenEvent = (hash: string) => () => this.props.historyStore!.history.push(`/${hash}`);
 
+    handleBet = async () => {
+        const dappAddress = this.props.match ? (this.props.match!.params as any).string : undefined;
+        const {selectedValue, selectedEvent} = this.state;
+        if (!dappAddress || !selectedEvent) return;
+        await this.props.dappStore!.bet(selectedValue, dappAddress, selectedEvent)
+    }
+
     render() {
         const dappAddress = this.props.match ? (this.props.match!.params as any).string : undefined;
-        const selectedDapp = dappAddress? [dappAddress]: [];
-        return <Root>
+        const selectedDapp = dappAddress ? [dappAddress] : [];
+        const {currentEvent} = this.props.eventsStore!;
+        const {selectedValue, selectedEvent} = this.state;
+        return <Layout style={{margin: '16px 0', padding: '24px 0', background: '#fff', height: '100%'}}>
+            <Scrollbar css={css`overflow: hidden`}>
+                <Sider width={200} style={{background: '#fff'}}>
+                    <Menu
+                        mode="inline"
+                        defaultSelectedKeys={selectedDapp}
+                        defaultOpenKeys={['sub1']}
+                        style={{height: '100%'}}
+                    >
+                        <SubMenu key="sub1" title={<span><Icon type="user"/>Test events</span>}>
+                            {this.props.eventsStore!.events && this.props.eventsStore!.events
+                                .map(({title, dapp}) =>
+                                    <Menu.Item key={dapp} onClick={this.handleOpenEvent(dapp)}>
+                                        {title}
+                                    </Menu.Item>
+                                )}
+                        </SubMenu>
 
-            <Layout style={{height: '100%', background: '#f0f2f599'}}>
-                <Header css={css`display: flex; align-items: center; justify-content: flex-end`}>
-                    <LoginBtn isLogin={this.props.accountStore!.isLogin} handleClick={this.handleClick}/>
-                </Header>
-                <Content style={{padding: '0 50px'}}>
-                    <Layout style={{margin: '16px 0', padding: '24px 0', background: '#fff', height: '100%'}}>
-                        <Scrollbar css={css`overflow: hidden`}>
-                            <Sider width={200} style={{background: '#fff'}}>
-                                <Menu
-                                    mode="inline"
-                                    defaultSelectedKeys={selectedDapp}
-                                    defaultOpenKeys={['sub1']}
-                                    style={{height: '100%'}}
-                                >
-                                    <SubMenu key="sub1" title={<span><Icon type="user"/>Test events</span>}>
-                                        {this.props.eventsStore!.events && this.props.eventsStore!.events
-                                            .map(({title, dapp}) =>
-                                                <Menu.Item key={dapp} onClick={this.handleOpenEvent(dapp)}>
-                                                    {title}
-                                                </Menu.Item>
-                                            )}
-                                    </SubMenu>
+                    </Menu>
+                </Sider>
+            </Scrollbar>
+            <Content style={{padding: '48px', minHeight: 280, display: 'flex', justifyContent: 'center'}}>
 
-                                </Menu>
-                            </Sider>
-                        </Scrollbar>
-                        <Content style={{padding: '0 24px', minHeight: 280}}>Content</Content>
-                    </Layout>
-                </Content>
-                <Footer style={{textAlign: 'center', background: 'transparent'}}>hotWager ©2020</Footer>
-            </Layout>
+                {currentEvent && currentEvent.state ?
+                    <div css={css`max-width: 500px`}>
+                        <Row css={css`text-align: center; font-size: 24px`} gutter={16}>
+                            <Col span={12}>Event 1 </Col>
+                            <Col span={12}>Event 2 </Col>
+                        </Row>
+                        <br/>
+                        <Row css={css`display: flex; justify-content: center`} gutter={16}>
+                            <Radio.Group onChange={this.handleSelectEvent}>
+                                <Radio.Button value={1} css={css`width: 200px;text-align: center`}>
+                                    {currentEvent.state.k1 / 100}
+                                </Radio.Button>
+                                <Radio.Button value={2} css={css`width: 200px;text-align: center`}>
+                                    {currentEvent.state.k2 / 100}
+                                </Radio.Button>
+                            </Radio.Group>
+                        </Row>
+                        <br/><br/>
+                        {selectedEvent
+                            ? <EventInfo
+                                onBet={this.handleBet}
+                                currentCoefficient={this.currentCoefficient}
+                                selectedValue={selectedValue}
+                                handleChangeSelectedValue={this.handleChangeSelectedValue}
+                            />
+                            : <Placeholder>Choose coefficient</Placeholder>
+                        }
+                    </div>
+                    : <Placeholder>Choose event</Placeholder>
+                }
 
+            </Content>
+        </Layout>
 
-            {/*{this.props.eventsStore!.events != null ? <Body>*/}
-            {/*        <Menu style={{flex: 1}}>*/}
-            {/*            {this.props.eventsStore!.events.map(({title, dapp, id}) =>*/}
-            {/*                <Menu.Item key={id} onClick={this.handleOpenEvent(dapp)}>*/}
-            {/*                    {title}*/}
-            {/*                </Menu.Item>*/}
-            {/*            )}*/}
-            {/*        </Menu>*/}
-            {/*        <div style={{flex: 3}}>content</div>*/}
-            {/*        <div style={{flex: 1}}>sidebar</div>*/}
-            {/*    </Body>*/}
-            {/*    : <Spin/>}*/}
-        </Root>
     }
 }

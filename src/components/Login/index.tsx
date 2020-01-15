@@ -6,8 +6,7 @@ import styled from "@emotion/styled";
 import { inject, observer } from "mobx-react";
 import AccountStore from "@stores/AccountStore";
 import { HistoryStore } from "@stores/index";
-import { openNotification } from "@utils/notifiations";
-import { checkUser, login, registerReq } from "@src/api";
+import { checkUser, registerReq } from "@src/api";
 
 const Root = styled.div`
 display: flex;
@@ -77,7 +76,7 @@ class Login extends React.Component<IProps, IState> {
                 if (res.status === 200 && res.data === 'success') {
                     isRegisteredUser = true
                 }
-            }catch (e) {
+            } catch (e) {
             }
         }
         this.setState({isRegisteredUser})
@@ -89,26 +88,14 @@ class Login extends React.Component<IProps, IState> {
     handleSubmit = async () => {
         const {email: username, password, isRegisteredUser} = this.state;
         if (isRegisteredUser && username && password) {
-            try {
-                const res = await login({username, password});
-                if (res.status === 200) {
-                    if (res.data && res.data.access_token) {
-                        this.props.accountStore!.setAccessToken(res.data.access_token);
-                        this.props.historyStore!.history.push('/myself')
-                    } else throw 'Something wrong!'
-                } else {
-                    throw res.data || 'Something wrong!'
-                }
-            } catch (e) {
-                openNotification(e, 'error')
-            }
+            await this.props.accountStore!.login(username, password)
         }
         if (!isRegisteredUser && username !== '') {
             const res = await registerReq(username);
             if (res.status === 200) {
                 this.setState({isCheckEmail: true})
             } else {
-                console.log(res)
+                console.error(res)
             }
         }
 

@@ -15,8 +15,8 @@ const initState = loadState();
 const mobXStore = new RootStore(initState);
 
 autorun(() => {
+    console.dir(mobXStore);
     const state = mobXStore.serialize();
-    console.log('store', state);
     saveState(state);
 }, {delay: 1000});
 

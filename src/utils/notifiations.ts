@@ -8,3 +8,11 @@ export const openNotification =
             placement: 'bottomRight',
         });
     }
+
+// export const handleError = (f: () => void) => {
+//     try {
+//         f();
+//     } catch (e) {
+//         openNotification(e, 'error')
+//     }
+// }

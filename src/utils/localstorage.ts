@@ -4,7 +4,7 @@ export const loadState = (): any | undefined => {
         return state || undefined;
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return undefined;
     }
 

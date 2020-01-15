@@ -8,7 +8,6 @@ const styles = css`
   overflow: hidden;
   //cursor: pointer;
   align-items: center;
-  padding: 0 0 0 15px;
   img {
     border-radius: 50%;
   }

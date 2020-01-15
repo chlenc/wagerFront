@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import React from "react";
-import {css, jsx} from "@emotion/core";
+import { jsx } from "@emotion/core";
 import styled from "@emotion/styled";
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 import AccountStore from "@stores/AccountStore";
-import {HistoryStore} from "@stores/index";
-import {Spin, Button} from 'antd';
-import {Body} from '@components/Login'
+import { HistoryStore } from "@stores/index";
+import { Button } from 'antd';
+import { Body } from '@components/Login'
+import AccountInfo from "@components/Myself/AccountInfo";
 
 const Root = styled.div`
 display: flex;
@@ -26,27 +27,26 @@ interface IProps {
 
 @inject('accountStore', 'historyStore')
 @observer
-class Myself extends React.Component<IProps> {
+export default class Myself extends React.Component<IProps> {
 
     handleLogout = () => {
         this.props.accountStore!.logout();
         this.props.historyStore!.history.push('/')
     }
 
+    handleCopySeed = () => {
+    }
+
     render() {
+        const {seed, username, address} = this.props.accountStore!;
+        if (seed === null || username === null || address === null) return null;
         return (
             <Root>
                 <Body>
-                    {this.props.accountStore
-                        ? <Root css={css`justify-content: space-around; height: 200px;width: 200px`}>
-                            <div>Hello 🙋🏿</div>
-                            <Button type="danger" onClick={this.handleLogout}>Logout</Button>
-                        </Root>
-                        : <Spin size="large"/>}
+                    <AccountInfo username={username} address={address} onCopySeed={this.handleCopySeed}/>
+                    <Button size={"large"} type="danger" onClick={this.handleLogout}>Logout</Button>
                 </Body>
             </Root>
         );
     }
 }
-
-export default Myself
