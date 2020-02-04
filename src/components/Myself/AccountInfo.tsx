@@ -37,6 +37,7 @@ const InfoTitle = styled.div`
 `;
 
 const CopyBtn = styled.div`
+cursor: pointer;
 background: url("${copyIcon}") center no-repeat;
 width: 14px;
 height: 14px;

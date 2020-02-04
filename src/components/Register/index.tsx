@@ -28,7 +28,7 @@ interface IProps extends RouteChildrenProps {
 interface IState {
     pass1: string
     pass2: string
-    hash: string
+    hash?: string
 }
 
 

@@ -100,7 +100,6 @@ class EventsStore extends SubStore {
         const res = await getEvents();
         if (res.status === 200) {
             this.events = res.data.map(([id, dapp, title, owner]: any) => ({id, dapp, title, owner}));
-
         }
     };
 
