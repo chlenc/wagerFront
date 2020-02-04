@@ -7,7 +7,7 @@ import styled from "@emotion/styled";
 import bg from '@src/assets/icons/bg.jpeg'
 import { HistoryStore } from "@stores/index";
 import { inject, observer } from "mobx-react";
-import Myself from "@components/Myself";
+import Story from "@components/Story";
 import Register from "@components/Register";
 import { Layout } from "antd";
 import { css, jsx } from "@emotion/core";
@@ -43,7 +43,7 @@ class App extends React.Component<IProps> {
                     <Content style={{padding: '0 50px'}}>
                         <Switch>
                             <Route exact path="/login" component={Login}/>
-                            <Route exact path="/myself" component={Myself}/>
+                            <Route exact path="/story" component={Story}/>
                             <Route exact path="/register/:string" component={Register}/>
                             <Route exact path={["/", "/:string"]} component={Home}/>
                         </Switch>

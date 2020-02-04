@@ -1,11 +1,11 @@
-import { SubStore } from './SubStore';
-import { RootStore } from '@stores/index';
-import { action, autorun, observable } from 'mobx';
-import { getEvents } from '@src/api';
-import { accountData } from '@waves/waves-transactions/dist/nodeInteraction';
-import { NODE_URL } from '@src/constants';
-import { base58Decode } from '@waves/ts-lib-crypto';
-import { _hashChain } from '@waves/ts-lib-crypto/crypto/hashing';
+import {SubStore} from './SubStore';
+import {RootStore} from '@stores/index';
+import {action, autorun, observable} from 'mobx';
+import {getEvents} from '@src/api';
+import {accountData} from '@waves/waves-transactions/dist/nodeInteraction';
+import {NODE_URL} from '@src/constants';
+import {base58Decode} from '@waves/ts-lib-crypto';
+import {_hashChain} from '@waves/ts-lib-crypto/crypto/hashing';
 
 interface IEvent {
     id: number
@@ -51,7 +51,7 @@ class EventsStore extends SubStore {
         const pathname = this.rootStore.historyStore.currentPath;
 
         if (pathname.includes('login')) return;
-        if (pathname.includes('myself')) return;
+        if (pathname.includes('story')) return;
         if (pathname.includes('register')) return;
 
         const currentEvent = pathname && isValidAddress(pathname) && this.events
@@ -81,19 +81,18 @@ class EventsStore extends SubStore {
         const {address} = this.rootStore.accountStore;
         if (this.rootStore.accountStore.address) {
             const data = await accountData('3MvuSn7KBR39PoLQ9jDM117mDyzFuBJs3qy', NODE_URL);
-            console.log(
-                Object.values(data)
-                    .filter(({key, value}) => key.includes('bettor') && value === address)
-                    .map(({key, value}) => {
-                        const index = key.split('_')[0];
-                        const event = data[`${index}_event`].value;
-                        const coefficient = data[`${index}_qoef${event}`].value;
-                        return {index, event, coefficient};
-                    })
-            );
+            return Object.values(data)
+                .filter(({key, value}) => key.includes('bettor') && value === address)
+                .map(({key}, i) => {
+                    const index = key.split('_')[0];
+                    const event = data[`${index}_event`].value;
+                    const coefficient = data[`${index}_qoef${event}`].value;
+                    return {index, event, coefficient, key: i};
+                });
         } else {
             this.currentEvent = null;
         }
+        return []
     };
 
     @action updateEvents = async () => {

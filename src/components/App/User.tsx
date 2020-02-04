@@ -6,7 +6,7 @@ import { inject, observer } from 'mobx-react';
 import AccountStore from '@stores/AccountStore';
 import { HistoryStore } from '@stores/index';
 import Avatar from '@components/Avatar';
-import AccountInfo from '@components/Myself/AccountInfo';
+import AccountInfo from '@components/Story/AccountInfo';
 
 interface IProps {
     historyStore?: HistoryStore
@@ -51,7 +51,7 @@ const DropDown = styled.div`
 display: flex;
 position: absolute;
 background-color: #001529;
-z-index: 1;
+z-index: 2;
 border-radius: 4px;
 `;
 
@@ -74,7 +74,7 @@ export default class User extends React.Component<IProps, IState> {
 
     handleClose = () => this.setState({open: false});
 
-    onOlenHistory = () => this.props.historyStore!.history.push('/myself');
+    onOlenHistory = () => this.props.historyStore!.history.push('/story');
 
     componentDidMount() {
         document.addEventListener('mousedown', this.handleClickOutside);

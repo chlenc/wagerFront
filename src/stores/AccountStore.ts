@@ -64,7 +64,7 @@ class AccountStore extends SubStore {
                 this.access_token = res.data.access_token;
                 this.seed = res.data.seed;
                 this.isLogin = true;
-                this.rootStore.historyStore.history.push('/myself')
+                this.rootStore.historyStore.history.push('/story')
             } else throw 'Something wrong!'
         } else {
             throw res.data || 'Something wrong!'
